@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Usuarios</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .grid-container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+        }
+
+        .user-list {
+            display: grid;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .user-item {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .user-name {
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .btn-img {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-next {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .image-item {
+            position: relative;
+            cursor: pointer;
+            border: 3px solid transparent;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .image-item.selected {
+            border-color: #2196F3;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-container">
+        <div class="user-list">
+            <div class="user-item">
+                <span class="user-name">Usuario 1</span>
+                <button class="btn btn-img">IMG</button>
+                <button class="btn btn-next">Next</button>
+            </div>
+            <div class="user-item">
+                <span class="user-name">Usuario 2</span>
+                <button class="btn btn-img">IMG</button>
+                <button class="btn btn-next">Next</button>
+            </div>
+            <div class="user-item">
+                <span class="user-name">Usuario 3</span>
+                <button class="btn btn-img">IMG</button>
+                <button class="btn btn-next">Next</button>
+            </div>
+        </div>
+    </div>
+    <!-- Add this modal at the end of body -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div class="modal-header">
+                <h3 class="selected-image-name">Select an image</h3>
+            </div>
+            <div class="image-grid">
+                <div class="image-item">
+                    <img src="https://via.placeholder.com/150" alt="Image 1" data-name="Image 1">
+                </div>
+                <div class="image-item">
+                    <img src="https://via.placeholder.com/150" alt="Image 2" data-name="Image 2">
+                </div>
+                <div class="image-item">
+                    <img src="https://via.placeholder.com/150" alt="Image 3" data-name="Image 3">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-confirm" id="confirmImage">Confirm Selection</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get modal elements
+        const modal = document.getElementById('imageModal');
+        const imgButtons = document.querySelectorAll('.btn-img'); // Ensure all IMG buttons are selected
+        const closeBtn = document.querySelector('.modal-close');
+        const imageItems = document.querySelectorAll('.image-item');
+        const selectedImageName = document.querySelector('.selected-image-name');
+        const confirmBtn = document.getElementById('confirmImage');
+        let selectedImage = null;
+    
+        // Open modal when IMG button is clicked
+        imgButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                modal.style.display = 'flex'; // Ensure the modal is displayed
+            });
+        });
+    
+        // Close modal when clicking the close button
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none'; // Hide the modal
+        });
+    
+        // Close modal when clicking outside the modal content
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none'; // Hide the modal
+            }
+        });
+    
+        // Handle image selection
+        imageItems.forEach(item => {
+            item.addEventListener('click', () => {
+                imageItems.forEach(img => img.classList.remove('selected')); // Remove selection from all images
+                item.classList.add('selected'); // Add selection to the clicked image
+                selectedImage = item;
+                const imageName = item.querySelector('img').getAttribute('data-name');
+                selectedImageName.textContent = imageName; // Update the modal header with the selected image name
+            });
+        });
+    
+        // Add confirm button handler
+        confirmBtn.addEventListener('click', () => {
+            if (selectedImage) {
+                console.log('Selected image:', selectedImage.querySelector('img').getAttribute('data-name'));
+                modal.style.display = 'none'; // Hide the modal after confirmation
+            } else {
+                alert('Please select an image before confirming.'); // Alert if no image is selected
+            }
+        });
+    </script>
+</body>
+</html>
